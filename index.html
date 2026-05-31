@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
@@ -115,6 +116,7 @@ color:#94a3b8;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -130,22 +132,22 @@ color:#94a3b8;
 
 <div class="card">
 <h3>Total Evaluation</h3>
-<h2>16</h2>
+<h2 id="totalEvaluation">0</h2>
 </div>
 
 <div class="card">
 <h3>Average Score</h3>
-<h2>6.4</h2>
+<h2 id="averageScore">0</h2>
 </div>
 
 <div class="card">
 <h3>Best Employee</h3>
-<h2>Bas</h2>
+<h2 id="bestEmployee">-</h2>
 </div>
 
 <div class="card">
 <h3>Departments</h3>
-<h2>8</h2>
+<h2 id="departmentCount">0</h2>
 </div>
 
 </div>
@@ -153,58 +155,113 @@ color:#94a3b8;
 <div class="buttons">
 
 <a class="btn primary"
-href="https://docs.google.com/spreadsheets/d/1tsTW9w658eMqpnfFPnxkwrKlO5CJ5P4_hDFTI8oDa58/edit?resourcekey=&gid=867916103#gid=867916103"
+href="https://docs.google.com/forms/d/e/1FAIpQLSfTXY6Ly4zjUMmhmmvFOg83csSkHD0Mj_xLA6t4LFzt-tneEg/viewform?usp=header"
 target="_blank">
-📝 Start Evaluation
-</a>
+📝 Start Evaluation </a>
 
 <a class="btn success"
-href="#">
-🏆 Leaderboard
-</a>
+href="#leaderboard-section">
+🏆 Leaderboard </a>
 
 <a class="btn warning"
-href="#">
-📊 KPI Report
-</a>
+href="#leaderboard-section">
+📊 KPI Report </a>
 
 </div>
 
-<div class="section">
+<div class="section" id="leaderboard-section">
 
-<h2 style="margin-bottom:20px;">Top Employees</h2>
+<h2 style="margin-bottom:20px;">
+🏆 Employee Leaderboard
+</h2>
 
 <table>
 
+<thead>
 <tr>
 <th>Rank</th>
 <th>Name</th>
+<th>Department</th>
 <th>Score</th>
+<th>Status</th>
 </tr>
+</thead>
 
-<tr>
-<td>1</td>
-<td>Bas</td>
-<td>7.8</td>
-</tr>
-
-<tr>
-<td>2</td>
-<td>Pin</td>
-<td>7.4</td>
-</tr>
-
-<tr>
-<td>3</td>
-<td>Jay</td>
-<td>7.4</td>
-</tr>
+<tbody id="leaderboard">
+</tbody>
 
 </table>
 
 </div>
 
 </div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbycPy20-XTa-JwTsdp3my_EDLy6rbQiFAbi7WVfirK-qzGopGRtohDKsqL7a9qS-Y7X/exec";
+
+fetch(API_URL)
+.then(response => response.json())
+.then(data => {
+
+data = data.filter(x => x.employee);
+
+data.sort((a,b)=>
+parseFloat(b.score) - parseFloat(a.score)
+);
+
+document.getElementById("totalEvaluation")
+.innerText = data.length;
+
+let totalScore = 0;
+
+data.forEach(item => {
+totalScore += parseFloat(item.score);
+});
+
+document.getElementById("averageScore")
+.innerText =
+(totalScore / data.length).toFixed(1);
+
+document.getElementById("bestEmployee")
+.innerText =
+data[0]?.employee || "-";
+
+const departments =
+new Set(
+data.map(x => x.department)
+);
+
+document.getElementById("departmentCount")
+.innerText =
+departments.size;
+
+const table =
+document.getElementById("leaderboard");
+
+table.innerHTML = "";
+
+data.forEach((user,index)=>{
+
+table.innerHTML += `
+<tr>
+<td>${index+1}</td>
+<td>${user.employee}</td>
+<td>${user.department}</td>
+<td>${user.score}</td>
+<td>${user.status}</td>
+</tr>
+`;
+
+});
+
+})
+.catch(error=>{
+console.error(error);
+});
+
+</script>
 
 </body>
 </html>
